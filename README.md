@@ -8,6 +8,7 @@ This is an unofficial implementation of __keyword__ __extration__ method propose
 Briefly, the method is a variantion of textrank but take semantic similarity of words into consideration.
 The pairwise semantic similarity is measured by cosine distance of word vectors of two words.
 
+![alt text](https://github.com/shihui2010/word_attraction/blob/master/fig.png?raw=true)
 
 ## Prerequisite:
 
