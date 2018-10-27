@@ -1,8 +1,12 @@
 from stopwords import stopwords_en
 import warnings
 import re
-from nltk.stem.porter import PorterStemmer
-
+try:
+    from nltk.stem.porter import PorterStemmer
+    STEM = True
+except ImportError:
+    print("warning: stem function is off")
+    STEM = False
 
 class WordAttraction(object):
     """
@@ -18,7 +22,8 @@ class WordAttraction(object):
         self.__unigram = None
         self.__bigram = None
         self.__graph = None
-        self.__wnl = PorterStemmer()
+        if STEM:
+            self.__wnl = PorterStemmer()
 
     def __prepocessing(self, text):
         if text is None:
@@ -123,6 +128,8 @@ class WordAttraction(object):
         scores = self.__scoring(damping, max_iter, converge_threshold)
 
         def stemer(x):
+            if not STEM:
+                return x
             return self.__wnl.stem(x) if stem else x
 
         tmp = sorted([(stemer(key), scores[key]) for key in scores], key=lambda x: -x[1])[:max_words]
