@@ -8,6 +8,7 @@ except ImportError:
     print("warning: stem function is off")
     STEM = False
 
+
 class WordAttraction(object):
     """
     Implementation of methods proposed in:
@@ -25,7 +26,7 @@ class WordAttraction(object):
         if STEM:
             self.__wnl = PorterStemmer()
 
-    def __prepocessing(self, text):
+    def __prepocessing(self, text, stem):
         if text is None:
             warnings.warn("Null Input")
             return
@@ -37,6 +38,8 @@ class WordAttraction(object):
         for token in tokens:
             if token in stopwords_en:
                 continue
+            if STEM and stem:
+                token = self.__wnl.stem(token)
             self.__unigram[token] = self.__unigram.setdefault(token, 0) + 1
             if last is not None:
                 last[token] = last.setdefault(token, 0) + 1
@@ -123,16 +126,11 @@ class WordAttraction(object):
         :param max_iter: max number of iteration for scoring
         :param converge_threshold: converge condition for scoring
         """
-        self.__prepocessing(text)
+        self.__prepocessing(text, stem=stem)
         self.__construct_graph()
         scores = self.__scoring(damping, max_iter, converge_threshold)
 
-        def stemer(x):
-            if not STEM:
-                return x
-            return self.__wnl.stem(x) if stem else x
-
-        tmp = sorted([(stemer(key), scores[key]) for key in scores], key=lambda x: -x[1])[:max_words]
+        tmp = sorted([(key, scores[key]) for key in scores], key=lambda x: -x[1])[:max_words]
         if output_score:
             return tmp
         return set([item[0] for item in tmp])

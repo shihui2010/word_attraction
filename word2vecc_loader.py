@@ -1,5 +1,11 @@
 import math
 import re
+try:
+    from nltk.stem.porter import PorterStemmer
+    STEM = True
+except ImportError:
+    print("warning: stem function is off")
+    STEM = False
 
 
 class Word2Vec(object):
@@ -8,16 +14,19 @@ class Word2Vec(object):
         Tt loads txt format word2vec model file instead of binary file.
         (The output format can be set as "-binary 0" when running Word2Vec)
         This class also provides query and searching method."""
-    def __init__(self, filename):
+    def __init__(self, filename, stem=True):
         self.__MAX_DISTANCE = 100000
         self.__word_embedding = {}
+        if STEM and stem:
+            stemmer = PorterStemmer()
         with open(filename, 'r') as fp:
             # skip first line: vocabulary size, embedding dimension
             info = fp.readline()
             self.__dimension = int(info.split()[1])
             for line in fp:
                 line_split = line.strip().split()
-                self.__word_embedding[line_split[0]] = [float(token) for token in line_split[1:]]
+                word = stemmer.stem(line_split[0]) if STEM and stem else line_split[0]
+                self.__word_embedding[word] = [float(token) for token in line_split[1:]]
 
     def get_vector(self, word):
         """word can be a single word or white-space delimited phrase,
